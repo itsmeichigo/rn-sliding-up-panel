@@ -32,7 +32,8 @@ class SlidingUpPanel extends React.Component {
     allowDragging: PropTypes.bool,
     showBackdrop: PropTypes.bool,
     contentStyle: PropTypes.any,
-    children: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
+    children: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    prohibitedTouchRect: PropTypes.object
   }
 
   static defaultProps = {
@@ -45,7 +46,8 @@ class SlidingUpPanel extends React.Component {
     onRequestClose: () => {},
     allowMomentum: true,
     allowDragging: true,
-    showBackdrop: true
+    showBackdrop: true,
+    prohibitedTouchRect: {}
   }
 
   constructor(props) {
@@ -73,7 +75,7 @@ class SlidingUpPanel extends React.Component {
 
     const {top, bottom} = props.draggableRange
 
-    this._animatedValueY = this.state.visible ? this.props.startCollapsed ? -bottom : -top : -bottom
+    this._animatedValueY = !this.state.visible ? -top : -bottom
     this._translateYAnimation = new Animated.Value(this._animatedValueY)
     this._flick = new FlickAnimation(this._translateYAnimation, -top, -bottom)
 
@@ -129,6 +131,10 @@ class SlidingUpPanel extends React.Component {
   }
 
   _onMoveShouldSetPanResponder(evt, gestureState) {
+    if (this.props.prohibitedTouchRect.y &&
+        evt.nativeEvent.pageY >= this.props.prohibitedTouchRect.y) {
+      return false
+    }
     return (
       this.props.allowDragging &&
       this._isInsideDraggableRange() &&
