@@ -131,8 +131,11 @@ class SlidingUpPanel extends React.Component {
   }
 
   _onMoveShouldSetPanResponder(evt, gestureState) {
-    if (this.props.prohibitedTouchRect.y &&
-        evt.nativeEvent.pageY >= this.props.prohibitedTouchRect.y) {
+    const { y, height } = this.props.prohibitedTouchRect
+    if (y && evt.nativeEvent.pageY >= y) {
+      if (height && evt.nativeEvent.pageY > (y + height)) {
+        return true
+      }
       return false
     }
     return (
